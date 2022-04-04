@@ -1,0 +1,2 @@
+-keep class com.yasirkula.unity.* { *; }
+-keep class api.natsuite.** { *; }
