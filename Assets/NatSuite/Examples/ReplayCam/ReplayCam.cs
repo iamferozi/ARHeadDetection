@@ -24,10 +24,27 @@ namespace NatSuite.Examples {
         private AudioInput audioInput;
         private AudioSource microphoneSource;
 
+        [SerializeField] AudioSource m_Source;
+        [SerializeField] AudioClip startRecordSound;
+        [SerializeField] AudioClip endRecordSound;
+
+        public Camera camera;
         private IEnumerator Start ()
         {
+
             videoWidth = Screen.width;
             videoHeight = Screen.height;
+
+
+            if ((videoWidth & 1) == 1)
+            {
+                videoWidth--;
+            }
+            if ((videoHeight & 1) == 1)
+            {
+                videoHeight--;
+            } 
+
             // Start microphone
             microphoneSource = gameObject.AddComponent<AudioSource>();
             microphoneSource.mute =
@@ -39,13 +56,15 @@ namespace NatSuite.Examples {
             microphoneSource.Play();
         }
 
-        private void OnDestroy () {
+        private void OnDestroy () 
+        {
             // Stop microphone
             microphoneSource.Stop();
             Microphone.End(null);
         }
 
-        public void StartRecording () {
+        public void StartRecording ()
+        {
             // Start recording
             var frameRate = 30;
             var sampleRate = recordMicrophone ? AudioSettings.outputSampleRate : 0;
@@ -53,7 +72,7 @@ namespace NatSuite.Examples {
             var clock = new RealtimeClock();
             recorder = new MP4Recorder(videoWidth, videoHeight, frameRate, sampleRate, channelCount);
             // Create recording inputs
-            cameraInput = new CameraInput(recorder, clock, Camera.main);
+            cameraInput = new CameraInput(recorder, clock, camera);
             audioInput = recordMicrophone ? new AudioInput(recorder, clock, microphoneSource, true) : null;
             // Unmute microphone
             microphoneSource.mute = audioInput == null;
@@ -69,11 +88,23 @@ namespace NatSuite.Examples {
             var path = await recorder.FinishWriting();
             // Playback recording
             Debug.Log($"Saved recording to: {path}");
-            var payload = new SavePayload("My Awesome App"); // album name here
+            var payload = new SavePayload("HeadFilter"); // album name here
             payload.AddMedia(path);
             _ = payload.Commit();
             
             //Handheld.PlayFullScreenMovie($"file://{path}");
+        }
+
+        public void playRecordSound()
+        {
+            if(!m_Source.isPlaying)
+                m_Source.PlayOneShot(startRecordSound);
+        }
+
+        public void playEndRecordSound()
+        {
+            if(!m_Source.isPlaying)
+                m_Source.PlayOneShot(endRecordSound);
         }
     }
 }

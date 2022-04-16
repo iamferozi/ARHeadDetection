@@ -18,6 +18,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
         [SerializeField]
         ARSession m_Session;
 
+
         public ARSession session
         {
             get { return m_Session; }
@@ -35,16 +36,30 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         [SerializeField]
         Button m_InstallButton;
+        [SerializeField]
+        Button m_CloseButton;
+        [SerializeField]
+        GameObject m_SupportPanel;
 
         public Button installButton
         {
             get { return m_InstallButton; }
             set { m_InstallButton = value; }
         }
+        public Button closeButton
+        {
+            get { return m_CloseButton; }
+            set { m_CloseButton = value; }
+        }
+        public GameObject supportPanel
+        {
+            get { return m_SupportPanel; }
+            set { m_SupportPanel = value; }
+        }
 
         void Log(string message)
         {
-            m_LogText.text += $"{message}\n";
+            m_LogText.text = $"{message}\n";
         }
 
         IEnumerator CheckSupport()
@@ -55,9 +70,12 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             yield return ARSession.CheckAvailability();
 
+            yield return new WaitForSeconds(2f);
+
             if (ARSession.state == ARSessionState.NeedsInstall)
             {
                 Log("Your device supports AR, but requires a software update.");
+                yield return new WaitForSeconds(2f);
                 Log("Attempting install...");
                 yield return ARSession.Install();
             }
@@ -65,17 +83,25 @@ namespace UnityEngine.XR.ARFoundation.Samples
             if (ARSession.state == ARSessionState.Ready)
             {
                 Log("Your device supports AR!");
+                yield return new WaitForSeconds(2f);
                 Log("Starting AR session...");
-
+                yield return new WaitForSeconds(2f);
+                Log("Press Close to continue...");
+                m_CloseButton.interactable = true;
                 // To start the ARSession, we just need to enable it.
                 m_Session.enabled = true;
+                PlayerPrefs.SetInt("SupportAvaliable", 1);
+
             }
             else
             {
                 switch (ARSession.state)
                 {
                     case ARSessionState.Unsupported:
-                        Log("Your device does not support AR.");
+                        Log("Your device does not support AR. Try another device.");
+                        m_CloseButton.interactable = true;
+                        m_CloseButton.onClick.AddListener(closeApplication);
+                        PlayerPrefs.SetInt("SupportAvaliable", 0);
                         break;
                     case ARSessionState.NeedsInstall:
                         Log("The software update failed, or you declined the update.");
@@ -86,7 +112,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                         break;
                 }
 
-                Log("\n[Start non-AR experience instead]");
+                //Log("\n[Start non-AR experience instead]");
 
                 //
                 // Start a non-AR fallback experience here...
@@ -106,18 +132,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             if (ARSession.state == ARSessionState.NeedsInstall)
             {
+                yield return new WaitForSeconds(1.5f);
+
                 Log("Attempting install...");
                 yield return ARSession.Install();
 
                 if (ARSession.state == ARSessionState.NeedsInstall)
                 {
+                    yield return new WaitForSeconds(1.5f);
                     Log("The software update failed, or you declined the update.");
                     SetInstallButtonActive(true);
                 }
                 else if (ARSession.state == ARSessionState.Ready)
                 {
+                    yield return new WaitForSeconds(1.5f);
                     Log("Success! Starting AR session...");
+                    yield return new WaitForSeconds(2f);
+                    Log("Press Close to continue...");
                     m_Session.enabled = true;
+                    m_CloseButton.interactable = true;
+                    PlayerPrefs.SetInt("SupportAvaliable", 1);
                 }
             }
             else
@@ -133,7 +167,26 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         void OnEnable()
         {
-            StartCoroutine(CheckSupport());
+            if (PlayerPrefs.GetInt("SupportAvaliable") == 0)
+            {
+                StartCoroutine(CheckSupport());
+                m_SupportPanel.SetActive(true);
+            }
+            else
+            {
+                m_SupportPanel.SetActive(false);
+                m_Session.enabled = true;
+            }
+        }
+
+        void closeApplication()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+#if !UNITY_EDITOR
+            Application.Quit();
+#endif
         }
     }
 }

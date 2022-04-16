@@ -4,9 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System;
+using NativeGalleryNamespace;
+
 
 public class CaptureImage : MonoBehaviour
 {
+    [SerializeField] AudioSource captureSound;
     //Set your screenshot resolutions
     public int captureWidth = 1920;
     public int captureHeight = 1080;
@@ -24,12 +27,17 @@ public class CaptureImage : MonoBehaviour
     //Initialize Directory
     private void Start()
     {
+        captureWidth = Screen.width;
+        captureHeight = Screen.height;
+
         outputFolder = Application.persistentDataPath + "/Screenshots/";
         if (!Directory.Exists(outputFolder))
         {
             Directory.CreateDirectory(outputFolder);
         }
         Debug.Log("Save Path will be : " + outputFolder);
+        NativeGallery.RequestPermission(NativeGallery.PermissionType.Write);
+
     }
 
     private string CreateFileName(int width, int height)
@@ -44,6 +52,7 @@ public class CaptureImage : MonoBehaviour
     bool isProcessing;
     private void CaptureScreenshot()
     {
+        captureSound.Play();
         isProcessing = true;
         // create screenshot objects
         if (renderTexture == null)
@@ -110,7 +119,7 @@ public class CaptureImage : MonoBehaviour
 
         //NativeToolkit.SaveImage(screenShot, "GalleryTest", "png");
         //SaveImageToGallery(screenShot, "GalleryTest", "THIS IS A TEST IMAGE");
-        NativeGallery.SaveImageToGallery(screenShot, "ARTest", filename, (success, path) => Debug.Log("Media save result: " + success + " " + path));
+        NativeGallery.SaveImageToGallery(screenShot, "HeadFilter", filename, (success, path) => Debug.Log("Media save result: " + success + " " + path));
         
         Destroy(renderTexture);
         renderTexture = null;

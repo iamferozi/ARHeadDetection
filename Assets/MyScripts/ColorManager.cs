@@ -3,15 +3,16 @@ using UnityEngine;
 public class ColorManager : MonoBehaviour
 {
     [SerializeField] Material material;
-    [SerializeField] Color[] colors;
+    [SerializeField] Texture[] textures; 
+    //[SerializeField] Color[] colors;
 
     public void changeColor(int color)
     {
-        for (int i = 0; i < colors.Length; i++)
+        for (int i = 0; i < textures.Length; i++)
         {
             if (color == i)
             {
-                material.color = colors[i];
+                material.mainTexture = textures[i];
             }
             else
             {
