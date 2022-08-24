@@ -20,6 +20,7 @@ namespace NatSuite.Examples.Components {
 		private const float MaxRecordingTime = 15f; // seconds
 
 		private void Start () {
+			Screen.sleepTimeout = SleepTimeout.NeverSleep;
 			Reset();
 		}
 

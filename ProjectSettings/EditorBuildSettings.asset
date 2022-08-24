@@ -137,6 +137,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/MyScenes/VideoSceneA.unity
     guid: e2111b3a5131dd94897a8ba07cfee1ac
+  - enabled: 0
+    path: Assets/MyScenes/VideoSceneH.unity
+    guid: 94127543adadaf748a5f0e803f9e4560
+  - enabled: 0
+    path: Assets/MyScenes/ClientTest.unity
+    guid: 3886c60c990906c47a8e3db757d331d6
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: f8ce26fe3bc69499b9be4b2378e97a94,
       type: 2}
